@@ -238,6 +238,38 @@ public interface BinanceAuthenticated extends Binance {
       throws IOException, BinanceException;
 
   /**
+   * Get all account orders; active, canceled, or filled. <br>
+   * If orderId is set, it will get orders >= that orderId. Otherwise most recent orders are
+   * returned.
+   *
+   * @param symbol
+   * @param orderId optional
+   * @param limit optional
+   * @param startTime optional
+   * @param endTime optional
+   * @param recvWindow optional
+   * @param timestamp
+   * @param apiKey
+   * @param signature
+   * @return
+   * @throws IOException
+   * @throws BinanceException
+   */
+  @GET
+  @Path("api/v3/allOrders")
+  List<BinanceOrder> allOrders(
+      @QueryParam("symbol") String symbol,
+      @QueryParam("orderId") Long orderId,
+      @QueryParam("limit") Integer limit,
+      @QueryParam("startTime") Long startTime,
+      @QueryParam("endTime") Long endTime,
+      @QueryParam("recvWindow") Long recvWindow,
+      @QueryParam("timestamp") SynchronizedValueFactory<Long> timestamp,
+      @HeaderParam(X_MBX_APIKEY) String apiKey,
+      @QueryParam(SIGNATURE) ParamsDigest signature)
+      throws IOException, BinanceException;
+
+  /**
    * Get current account information.
    *
    * @param recvWindow optional

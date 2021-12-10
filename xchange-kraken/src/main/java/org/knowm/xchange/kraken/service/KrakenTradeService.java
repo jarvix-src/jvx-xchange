@@ -6,6 +6,7 @@ import java.util.Map;
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order;
+import org.knowm.xchange.dto.Orders;
 import org.knowm.xchange.dto.account.OpenPositions;
 import org.knowm.xchange.dto.trade.*;
 import org.knowm.xchange.exceptions.ExchangeException;
@@ -154,6 +155,50 @@ public class KrakenTradeService extends KrakenTradeServiceRaw implements TradeSe
   public Collection<Order> getOrder(String... orderIds) throws IOException {
 
     return KrakenAdapters.adaptOrders(super.getOrders(orderIds));
+  }
+
+  @Override
+  public Orders getOrderHistory(TradeHistoryParams params) throws IOException
+  {
+    String start = null;
+    String end = null;
+    String offset = null;
+
+    if (params instanceof TradeHistoryParamOffset) {
+      Long offsetLong = ((TradeHistoryParamOffset) params).getOffset();
+      if(offsetLong != null)
+      {
+        offset = offsetLong.toString();
+      }
+    }
+    if (params instanceof TradeHistoryParamsIdSpan) {
+      TradeHistoryParamsIdSpan idSpan = (TradeHistoryParamsIdSpan) params;
+      start = idSpan.getStartId();
+      end = idSpan.getEndId();
+    }
+    if (params instanceof TradeHistoryParamsTimeSpan) {
+      TradeHistoryParamsTimeSpan timeSpan = (TradeHistoryParamsTimeSpan) params;
+      start =
+          DateUtils.toUnixTimeOptional(timeSpan.getStartTime()).map(Object::toString).orElse(start);
+
+      end = DateUtils.toUnixTimeOptional(timeSpan.getEndTime()).map(Object::toString).orElse(end);
+    }
+
+    Map<String, KrakenOrder> krakenOrderHistory =
+        getKrakenClosedOrders(false, null, start, end, offset, null);
+
+    if (params instanceof TradeHistoryParamCurrencyPair
+        && ((TradeHistoryParamCurrencyPair) params).getCurrencyPair() != null) {
+      krakenOrderHistory =
+          KrakenUtils.filterOpenOrdersByCurrencyPair(
+              krakenOrderHistory, ((TradeHistoryParamCurrencyPair) params).getCurrencyPair());
+    }
+
+    return KrakenAdapters.adaptOrdersHistory(krakenOrderHistory);
+  }
+  @Override
+  public TradeHistoryParams createOrderHistoryParams() {
+    return new org.knowm.xchange.kraken.service.KrakenTradeHistoryParams();
   }
 
   @Deprecated

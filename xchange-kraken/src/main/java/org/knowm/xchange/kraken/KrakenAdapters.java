@@ -18,6 +18,7 @@ import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order;
 import org.knowm.xchange.dto.Order.OrderStatus;
 import org.knowm.xchange.dto.Order.OrderType;
+import org.knowm.xchange.dto.Orders;
 import org.knowm.xchange.dto.account.*;
 import org.knowm.xchange.dto.marketdata.OrderBook;
 import org.knowm.xchange.dto.marketdata.Ticker;
@@ -110,6 +111,11 @@ public class KrakenAdapters {
     return krakenOrdersMap.entrySet().stream()
         .map(krakenOrderEntry -> adaptOrder(krakenOrderEntry.getKey(), krakenOrderEntry.getValue()))
         .collect(Collectors.toList());
+  }
+  public static Orders adaptOrdersHistory(Map<String, KrakenOrder> krakenOrdersMap) {
+
+    List<Order> orders = adaptOrders(krakenOrdersMap);
+    return new Orders(orders);
   }
 
   public static Order adaptOrder(String orderId, KrakenOrder krakenOrder) {

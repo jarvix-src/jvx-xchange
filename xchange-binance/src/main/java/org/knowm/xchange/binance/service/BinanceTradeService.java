@@ -23,6 +23,7 @@ import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order;
 import org.knowm.xchange.dto.Order.IOrderFlags;
+import org.knowm.xchange.dto.Orders;
 import org.knowm.xchange.dto.marketdata.Trades;
 import org.knowm.xchange.dto.trade.LimitOrder;
 import org.knowm.xchange.dto.trade.MarketOrder;
@@ -310,7 +311,7 @@ public class BinanceTradeService extends BinanceTradeServiceRaw implements Trade
   @Override
   public Collection<Order> getOrder(String... orderIds) {
 
-    throw new NotAvailableFromExchangeException();
+    throw new NotAvailableFromExchangeException("Currency pair is mandatory to request BINANCE orders");
   }
 
   @Override
@@ -341,6 +342,75 @@ public class BinanceTradeService extends BinanceTradeServiceRaw implements Trade
     } catch (BinanceException e) {
       throw BinanceErrorAdapter.adapt(e);
     }
+  }
+
+  /**
+   * TODO TO BE REVIEWED
+   * @param params {@inheritDoc}
+   * @return {@inheritDoc}
+   * @throws IOException {@inheritDoc}
+   * @see org.knowm.xchange.service.trade.TradeService#getOrderHistory(org.knowm.xchange.service.trade.params.TradeHistoryParams)
+   */
+  @Override
+  public Orders getOrderHistory(TradeHistoryParams params) throws IOException
+  {
+    try {
+      Assert.isTrue(
+          params instanceof TradeHistoryParamCurrencyPair,
+          "You need to provide the currency pair to get the user orders.");
+      TradeHistoryParamCurrencyPair pairParams = (TradeHistoryParamCurrencyPair) params;
+      CurrencyPair pair = pairParams.getCurrencyPair();
+      if (pair == null) {
+        throw new ExchangeException(
+            "You need to provide the currency pair to get the user orders.");
+      }
+
+      Integer limit = null;
+      if (params instanceof TradeHistoryParamLimit) {
+        TradeHistoryParamLimit limitParams = (TradeHistoryParamLimit) params;
+        limit = limitParams.getLimit();
+      }
+      Long fromId = null;
+      if (params instanceof TradeHistoryParamsIdSpan) {
+        TradeHistoryParamsIdSpan idParams = (TradeHistoryParamsIdSpan) params;
+
+        try {
+          fromId = BinanceAdapters.id(idParams.getStartId());
+        } catch (Throwable ignored) {
+        }
+      }
+
+      Long startTime = null;
+      Long endTime = null;
+      if (params instanceof TradeHistoryParamsTimeSpan) {
+        if (((TradeHistoryParamsTimeSpan) params).getStartTime() != null) {
+          startTime = ((TradeHistoryParamsTimeSpan) params).getStartTime().getTime();
+        }
+        if (((TradeHistoryParamsTimeSpan) params).getEndTime() != null) {
+          endTime = ((TradeHistoryParamsTimeSpan) params).getEndTime().getTime();
+        }
+      }
+      if ((fromId != null) && (startTime != null || endTime != null))
+        throw new ExchangeException(
+            "You should either specify the id from which you get the user orders from or start and end times. If you specify both, Binance will only honour the fromId parameter.");
+      List<BinanceOrder> binanceOrders = super.allOrders(pair, fromId, limit, startTime, endTime);
+      List<Order> orders =
+          binanceOrders.stream()
+              .map(
+                  o ->
+                  BinanceAdapters.adaptOrder(o))
+              .collect(Collectors.toList());
+      long lastId = binanceOrders.stream().map(o -> o.orderId).max(Long::compareTo).orElse(0L);
+      return new Orders(orders, lastId, Orders.OrderSortType.SortByTimestamp);
+    } catch (BinanceException e) {
+      throw BinanceErrorAdapter.adapt(e);
+    }
+  }
+  
+  @Override
+  public TradeHistoryParams createOrderHistoryParams() {
+
+    return new BinanceTradeHistoryParams();
   }
 
   public interface BinanceOrderFlags extends IOrderFlags {

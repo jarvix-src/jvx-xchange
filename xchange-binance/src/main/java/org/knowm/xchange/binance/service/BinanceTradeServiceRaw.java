@@ -184,6 +184,25 @@ public class BinanceTradeServiceRaw extends BinanceBaseService {
         .withRateLimiter(rateLimiter(REQUEST_WEIGHT_RATE_LIMITER))
         .call();
   }
+  public List<BinanceOrder> allOrders(
+      CurrencyPair pair, Long orderId, Integer limit, Long startTime, Long endTime)
+      throws BinanceException, IOException {
+    return decorateApiCall(
+            () ->
+                binance.allOrders(
+                    BinanceAdapters.toSymbol(pair),
+                    orderId,
+                    limit,
+                    startTime,
+                    endTime,
+                    getRecvWindow(),
+                    getTimestampFactory(),
+                    apiKey,
+                    signatureCreator))
+        .withRetry(retry("allOrders"))
+        .withRateLimiter(rateLimiter(REQUEST_WEIGHT_RATE_LIMITER))
+        .call();
+  }
 
   public List<BinanceTrade> myTrades(
       CurrencyPair pair, Long orderId, Long startTime, Long endTime, Long fromId, Integer limit)

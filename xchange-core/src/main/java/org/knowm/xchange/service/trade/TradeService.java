@@ -1,12 +1,12 @@
 package org.knowm.xchange.service.trade;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import org.knowm.xchange.dto.Order;
+import org.knowm.xchange.dto.Orders;
 import org.knowm.xchange.dto.account.OpenPositions;
+import org.knowm.xchange.dto.meta.CurrencyPairMetaData;
 import org.knowm.xchange.dto.trade.*;
 import org.knowm.xchange.exceptions.ExchangeException;
 import org.knowm.xchange.exceptions.NotAvailableFromExchangeException;
@@ -338,5 +338,24 @@ public interface TradeService extends BaseService {
    */
   default Collection<Order> getOrder(OrderQueryParams... orderQueryParams) throws IOException {
     throw new NotAvailableFromExchangeException("getOrder");
+  }
+
+
+  /**
+   * TODO TO BE REVIEWED
+   * @param params TODO TO BE REVIEWED
+   * @return TODO TO BE REVIEWED
+   * @throws IOException TODO TO BE REVIEWED
+   */
+  @SuppressWarnings("unused")
+  default Orders getOrderHistory(TradeHistoryParams params) throws IOException {
+    throw new NotYetImplementedForExchangeException("getOrderHistory");
+  }
+  /**
+   * TODO TO BE REVIEWED
+   * @return TODO TO BE REVIEWED
+   */
+  default TradeHistoryParams createOrderHistoryParams() {
+    throw new NotYetImplementedForExchangeException("createOrderHistoryParams() for implementation " + this.getClass().getName());
   }
 }
