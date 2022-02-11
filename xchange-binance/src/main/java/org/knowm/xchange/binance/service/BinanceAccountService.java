@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
 import org.knowm.xchange.binance.BinanceAdapters;
 import org.knowm.xchange.binance.BinanceAuthenticated;
 import org.knowm.xchange.binance.BinanceErrorAdapter;
@@ -30,7 +31,16 @@ import org.knowm.xchange.dto.account.FundingRecord.Status;
 import org.knowm.xchange.dto.account.FundingRecord.Type;
 import org.knowm.xchange.dto.account.Wallet;
 import org.knowm.xchange.service.account.AccountService;
-import org.knowm.xchange.service.trade.params.*;
+import org.knowm.xchange.service.trade.params.DefaultWithdrawFundsParams;
+import org.knowm.xchange.service.trade.params.HistoryParamsFundingType;
+import org.knowm.xchange.service.trade.params.RippleWithdrawFundsParams;
+import org.knowm.xchange.service.trade.params.TradeHistoryParamCurrency;
+import org.knowm.xchange.service.trade.params.TradeHistoryParamLimit;
+import org.knowm.xchange.service.trade.params.TradeHistoryParamOffset;
+import org.knowm.xchange.service.trade.params.TradeHistoryParamPaging;
+import org.knowm.xchange.service.trade.params.TradeHistoryParams;
+import org.knowm.xchange.service.trade.params.TradeHistoryParamsTimeSpan;
+import org.knowm.xchange.service.trade.params.WithdrawFundsParams;
 
 public class BinanceAccountService extends BinanceAccountServiceRaw implements AccountService {
 
@@ -217,6 +227,7 @@ public class BinanceAccountService extends BinanceAccountServiceRaw implements A
 
       Integer limit = null;
       Integer page = null;
+      Integer offset = null;
 
       if (params instanceof TradeHistoryParamLimit) {
         limit = ((TradeHistoryParamLimit) params).getLimit();
@@ -224,6 +235,11 @@ public class BinanceAccountService extends BinanceAccountServiceRaw implements A
 
       if (params instanceof TradeHistoryParamPaging) {
         page = ((TradeHistoryParamPaging) params).getPageNumber();
+      }
+
+      if (params instanceof TradeHistoryParamOffset) {
+        Long offsetLong = ((TradeHistoryParamOffset) params).getOffset();
+        offset = offsetLong == null ? null : offsetLong.intValue();
       }
 
       boolean withdrawals = true;
@@ -266,7 +282,7 @@ public class BinanceAccountService extends BinanceAccountServiceRaw implements A
 
       List<FundingRecord> result = new ArrayList<>();
       if (withdrawals) {
-        super.withdrawHistory(asset, startTime, endTime)
+        super.withdrawHistory(asset, startTime, endTime, offset, limit)
             .forEach(
                 w -> {
                   result.add(
@@ -287,7 +303,7 @@ public class BinanceAccountService extends BinanceAccountServiceRaw implements A
       }
 
       if (deposits) {
-        super.depositHistory(asset, startTime, endTime)
+        super.depositHistory(asset, startTime, endTime, offset, limit)
             .forEach(
                 d -> {
                   result.add(
