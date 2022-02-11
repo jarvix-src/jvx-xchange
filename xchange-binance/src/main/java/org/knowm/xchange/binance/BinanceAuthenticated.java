@@ -355,6 +355,8 @@ public interface BinanceAuthenticated extends Binance {
    * @param coin optional
    * @param startTime optional
    * @param endTime optional
+   * @param offset optional
+   * @param limit optional
    * @param recvWindow optional
    * @param timestamp
    * @param apiKey
@@ -369,6 +371,8 @@ public interface BinanceAuthenticated extends Binance {
       @QueryParam("coin") String coin,
       @QueryParam("startTime") Long startTime,
       @QueryParam("endTime") Long endTime,
+      @QueryParam("offset") Integer offset,
+      @QueryParam("limit") Integer limit,
       @QueryParam("recvWindow") Long recvWindow,
       @QueryParam("timestamp") SynchronizedValueFactory<Long> timestamp,
       @HeaderParam(X_MBX_APIKEY) String apiKey,
@@ -381,6 +385,8 @@ public interface BinanceAuthenticated extends Binance {
    * @param coin optional
    * @param startTime optional
    * @param endTime optional
+   * @param offset optional
+   * @param limit optional
    * @param recvWindow optional
    * @param timestamp
    * @param apiKey
@@ -395,6 +401,8 @@ public interface BinanceAuthenticated extends Binance {
       @QueryParam("coin") String coin,
       @QueryParam("startTime") Long startTime,
       @QueryParam("endTime") Long endTime,
+      @QueryParam("offset") Integer offset,
+      @QueryParam("limit") Integer limit,
       @QueryParam("recvWindow") Long recvWindow,
       @QueryParam("timestamp") SynchronizedValueFactory<Long> timestamp,
       @HeaderParam(X_MBX_APIKEY) String apiKey,

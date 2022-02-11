@@ -1,19 +1,24 @@
 package org.knowm.xchange.binance.service;
 
 import java.util.Date;
+
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.dto.account.FundingRecord.Type;
 import org.knowm.xchange.service.trade.params.HistoryParamsFundingType;
 import org.knowm.xchange.service.trade.params.TradeHistoryParamCurrency;
+import org.knowm.xchange.service.trade.params.TradeHistoryParamLimit;
+import org.knowm.xchange.service.trade.params.TradeHistoryParamOffset;
 import org.knowm.xchange.service.trade.params.TradeHistoryParamsTimeSpan;
 
 public class BinanceFundingHistoryParams
-    implements TradeHistoryParamCurrency, TradeHistoryParamsTimeSpan, HistoryParamsFundingType {
+    implements TradeHistoryParamCurrency, TradeHistoryParamsTimeSpan, HistoryParamsFundingType, TradeHistoryParamLimit, TradeHistoryParamOffset {
 
   private Currency currency;
   private Type type;
   private Date startTime;
   private Date endTime;
+  private Long offset;
+  private Integer limit;
 
   @Override
   public Currency getCurrency() {
@@ -53,5 +58,25 @@ public class BinanceFundingHistoryParams
   @Override
   public void setEndTime(Date endTime) {
     this.endTime = endTime;
+  }
+
+  @Override
+  public Long getOffset() {
+    return this.offset;
+  }
+
+  @Override
+  public void setOffset(Long offset) {
+    this.offset = offset;
+  }
+
+  @Override
+  public Integer getLimit() {
+    return this.limit;
+  }
+
+  @Override
+  public void setLimit(Integer limit) {
+    this.limit = limit;
   }
 }
