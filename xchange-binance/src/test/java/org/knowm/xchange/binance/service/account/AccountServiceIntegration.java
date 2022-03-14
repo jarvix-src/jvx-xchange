@@ -119,7 +119,7 @@ public class AccountServiceIntegration extends BinanceExchangeIntegration {
   @Test
   public void testDepositHistory() throws Exception {
     assumeProduction();
-    List<BinanceDeposit> depositHistory = accountService.depositHistory("BTC", null, null);
+    List<BinanceDeposit> depositHistory = accountService.depositHistory("BTC", null, null, null, null);
     Assert.assertNotNull(depositHistory);
   }
 
